@@ -201,6 +201,21 @@ def get_stats(conn: sqlite3.Connection) -> dict:
     }
 
 
+def get_due_followups(conn: sqlite3.Connection, days_ahead: int = 7) -> list[dict]:
+    """Return active applications with a follow_up_date that is overdue or within days_ahead."""
+    rows = conn.execute(
+        """
+        SELECT * FROM applications
+        WHERE follow_up_date IS NOT NULL
+          AND follow_up_date <= date('now', ?)
+          AND status NOT IN ('Rejected', 'Withdrawn', 'Offer')
+        ORDER BY follow_up_date ASC
+        """,
+        (f"+{days_ahead} days",),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 # ---------------------------------------------------------------------
 # Update
 # ---------------------------------------------------------------------

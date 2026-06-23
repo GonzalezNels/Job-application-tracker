@@ -24,6 +24,8 @@ MENU = """
 6. View one application + its status history
 7. Show stats
 8. Delete an application
+9. Follow-ups due (overdue + next 7 days)
+10. Edit an application
 0. Quit
 ====================================================================
 """
@@ -105,14 +107,14 @@ def action_update_status(conn) -> None:
 
 def action_list_all(conn) -> None:
     rows = db.list_applications(conn)
-    print_table(rows, ["id", "company", "position", "status", "date_applied", "follow_up_date"])
+    print_table(rows, ["id", "company", "position", "status", "date_applied", "follow_up_date", "job_url"])
 
 
 def action_list_by_status(conn) -> None:
     print(f"Valid statuses: {', '.join(db.VALID_STATUSES)}")
     status = prompt("Status")
     rows = db.list_applications(conn, status=status)
-    print_table(rows, ["id", "company", "position", "status", "date_applied", "follow_up_date"])
+    print_table(rows, ["id", "company", "position", "status", "date_applied", "follow_up_date", "job_url"])
 
 
 def action_search(conn) -> None:
@@ -170,6 +172,43 @@ def action_delete(conn) -> None:
         print(f"No application with id {app_id}.")
 
 
+def action_followups(conn) -> None:
+    rows = db.get_due_followups(conn)
+    if not rows:
+        print("No follow-ups due in the next 7 days.")
+        return
+    print_table(rows, ["id", "company", "position", "status", "follow_up_date", "job_url"])
+
+
+def action_edit(conn) -> None:
+    print("\n-- Edit application --")
+    try:
+        app_id = int(prompt("Application id"))
+    except ValueError:
+        print("That's not a number.")
+        return
+
+    app = db.get_application(conn, app_id)
+    if not app:
+        print(f"No application with id {app_id}.")
+        return
+
+    print("Leave a field blank to keep the current value.")
+    fields = {}
+    for col in ("company", "position", "date_applied", "job_url", "location",
+                "salary_range", "source", "notes", "follow_up_date"):
+        current = app.get(col) or ""
+        new_val = input(f"  {col} [{current}]: ").strip()
+        if new_val:
+            fields[col] = new_val
+
+    if fields:
+        db.update_application(conn, app_id, **fields)
+        print("Updated.")
+    else:
+        print("No changes made.")
+
+
 ACTIONS = {
     "1": action_add,
     "2": action_update_status,
@@ -179,6 +218,8 @@ ACTIONS = {
     "6": action_view,
     "7": action_stats,
     "8": action_delete,
+    "9": action_followups,
+    "10": action_edit,
 }
 
 
