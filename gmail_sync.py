@@ -130,7 +130,7 @@ def fetch_recent_messages(service, lookback_days: int = LOOKBACK_DAYS) -> list[d
     full = []
     for msg in messages:
         detail = service.users().messages().get(
-            userId="me", messageId=msg["id"], format="metadata",
+            userId="me", id=msg["id"], format="metadata",
             metadataHeaders=["Subject", "From", "Date"],
         ).execute()
         full.append(detail)
@@ -145,8 +145,8 @@ def fetch_recent_messages(service, lookback_days: int = LOOKBACK_DAYS) -> list[d
 # Each tuple: (regex pattern, status to assign).
 # Patterns are checked in order — first match wins.
 STATUS_PATTERNS = [
-    # Offer
-    (r"offer|congratulations|pleased to offer|welcome aboard", "Offer"),
+    # Offer (job-specific — avoids retail/promo "offer" emails)
+    (r"job offer|employment offer|offer of employment|pleased to offer|welcome aboard|congratulations.*position|we.d like to offer you", "Offer"),
 
     # Rejection
     (
