@@ -10,23 +10,30 @@ so you get real SQL and Python practice while using it this summer.
 | `schema.sql` | Table definitions (`applications`, `status_log`) |
 | `db.py` | All database access — every SQL query the project runs lives here, commented |
 | `cli.py` | Interactive menu app: add, update, list, search, stats, delete |
-| `seed.py` | Loads ~12 sample applications so there's data to query right away |
+| `gmail_sync.py` | Scans Gmail and auto-updates application statuses from recruiting emails |
 | `queries/learning_queries.sql` | Standalone SQL queries, basic → advanced, to run and tweak |
 | `job_applications.db` | The actual database file (created the first time you run anything) |
 
 ## Setup
 
-No installs needed — everything uses Python's built-in `sqlite3` module.
+No installs needed for the core tracker — everything uses Python's built-in `sqlite3` module.
 Requires Python 3.10+ (uses the `int | None` type hint style).
 
 ```
-python seed.py      # creates job_applications.db and loads sample data
 python cli.py        # launch the interactive tracker
 ```
 
-Re-running `seed.py` wipes and reloads the sample data, so it's safe to run
-again if you want a clean slate. Once you start adding your *real*
-applications through `cli.py`, don't re-run `seed.py` — it'll erase them.
+For Gmail sync, install the Google API client once:
+
+```
+pip install google-api-python-client google-auth-oauthlib
+```
+
+Then place your `credentials.json` (from Google Cloud Console) in this folder and run:
+
+```
+python gmail_sync.py
+```
 
 ## Using the CLI
 
