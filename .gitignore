@@ -1,0 +1,15 @@
+# The actual database - contains your real job search data, never commit it
+job_applications.db
+job_applications.db-journal
+job_applications.db-wal
+job_applications.db-shm
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS noise
+.DS_Store
+Thumbs.db
